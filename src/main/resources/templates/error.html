@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Error 404 — Página no encontrada</title>
+  <style>
+    :root{--bg:#ffe4f0;--card:#ffd6e8;--accent:#ff6fb5;--muted:#a4557b}
+    html,body{height:100%;margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",Arial}
+    body{display:flex;align-items:center;justify-content:center;background:linear-gradient(180deg,#ffe4f0 0%,var(--bg) 100%);color:#4a1c33}
+    .card{width:min(980px,92%);background:linear-gradient(180deg,rgba(255,255,255,0.4),rgba(255,255,255,0.3));border-radius:16px;padding:48px;box-shadow:0 10px 30px rgba(0,0,0,0.1);display:grid;grid-template-columns:1fr 320px;gap:32px;align-items:center}
+    h1{font-size:72px;margin:0;letter-spacing:-2px;color:#b4377e}
+    p.lead{margin:8px 0 18px;color:var(--muted);font-size:18px}
+    .actions{display:flex;gap:12px;flex-wrap:wrap}
+    a.btn{display:inline-block;padding:12px 18px;border-radius:10px;text-decoration:none;font-weight:600}
+    .btn-primary{background:linear-gradient(90deg,var(--accent),#ff85c9);color:#fff}
+    .btn-ghost{border:1px solid rgba(0,0,0,0.1);color:#b4377e;background:rgba(255,255,255,0.4)}
+    .illustration{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:16px;border-radius:12px;background:linear-gradient(180deg,rgba(255,255,255,0.4),transparent)}
+    .code{font-weight:700;font-size:14px;padding:10px 14px;border-radius:8px;background:rgba(255,255,255,0.3);color:var(--accent)}
+    form.search{display:flex;margin-top:12px}
+    input[type="search"]{flex:1;padding:10px 12px;border-radius:10px 0 0 10px;border:1px solid rgba(0,0,0,0.1);background:rgba(255,255,255,0.4);color:#4a1c33;outline:none}
+    button[type="submit"]{padding:10px 14px;border-radius:0 10px 10px 0;border:1px solid rgba(0,0,0,0.1);background:rgba(255,255,255,0.4);cursor:pointer;color:#b4377e}
+    @media (max-width:760px){.card{grid-template-columns:1fr;gap:18px;padding:28px}h1{font-size:48px}}
+  </style>
+</head>
+<body>
+  <main class="card" role="main">
+    <section>
+      <div class="code">HTTP 404</div>
+      <h1>Oops — Página no encontrada</h1>
+      <p class="lead">La página que estás buscando no existe, o ha sido movida. Comprueba la URL o vuelve al inicio.</p>
+
+      <div class="actions">
+        <a th:href="@{/}" class="btn btn-primary">Ir al inicio</a>
+        <a th:href="@{/contacto}" class="btn btn-ghost">Contactar soporte</a>
+      </div>
+
+      <form class="search" th:action="@{/search}" method="get">
+        <input type="search" name="q" placeholder="Buscar en el sitio..." aria-label="Buscar" />
+        <button type="submit">Buscar</button>
+      </form>
+
+      <p style="margin-top:18px;color:var(--muted);font-size:13px">Si crees que esto es un error, por favor <a th:href="@{/contacto}" style="color:inherit;text-decoration:underline">contacta con soporte</a> indicando la dirección solicitada: <code th:text="${#httpServletRequest.requestURI}">/ruta/solicitada</code>.</p>
+    </section>
+
+    <aside class="illustration" aria-hidden="true">
+      <svg width="220" height="140" viewBox="0 0 220 140" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Ilustración 404">
+        <rect x="2" y="2" width="216" height="136" rx="12" fill="url(#g)" stroke="rgba(0,0,0,0.1)"/>
+        <defs>
+          <linearGradient id="g" x1="0" x2="1">
+            <stop offset="0" stop-color="#ffd6e8"/>
+            <stop offset="1" stop-color="#ffb3d9"/>
+          </linearGradient>
+        </defs>
+        <g transform="translate(40,28) scale(1.05)" fill="none" stroke="#b4377e" stroke-opacity="0.7">
+          <circle cx="40" cy="20" r="18" stroke-width="2"/>
+          <rect x="6" y="52" width="68" height="28" rx="6" stroke-width="2"/>
+        </g>
+      </svg>
+
+      <p style="margin-top:12px;color:var(--muted);text-align:center">¿Necesitas ayuda? Estamos aquí para ayudarte.</p>
+    </aside>
+  </main>
+</body>
+</html>
