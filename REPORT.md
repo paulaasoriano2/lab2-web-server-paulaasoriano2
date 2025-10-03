@@ -5,14 +5,14 @@
 The several changes which have been made in this proyect are described in this section.
 
 ### 1.1. Customize the Whitelabel Error Page
-The default Spring Boot Whitelabel Error Page was replaced with a custom, responsive template named `error.html`, implemented with Thymeleaf. The HTML and CSS design of this page was created by ChatGPT in order to speed up the process of design and stored in the `src/main/resources/templates` directory so that Spring Boot automatically serves it when a non-existent route is requested. A Kotlin test validates the implementation by sending a request to the invalid URL: `http://localhost:$port`, confirming a 404 status and checking that the response contains the distinctive title and header of the new page.
+The default Spring Boot Whitelabel Error Page was replaced with a custom, responsive template named `error.html`, implemented with Thymeleaf. The HTML and CSS design of this page was created by ChatGPT in order to speed up the process of design and stored in the `src/main/resources/templates` directory so that Spring Boot automatically serves it when a non-existent route is requested.
 
-To validate this behavior, a Kotlin integration test named `in case of error it returns the error page created` was generated using Spring Boot’s testing framework. The test starts the application on a random port, sends an HTTP GET request to a path that does not exist, and includes an `Accept: text/html` header to request an HTML response. It then asserts that the returned status is 404 Not Found, that the Content-Type begins with `text/html`, and that the body of the response contains the custom `<title>` and `<h1>` elements defined in `error.html`, ensuring the Thymeleaf template is correctly rendered.
+A Kotlin test validates the implementation by sending a request to the invalid URL: `http://localhost:$port`, confirming a 404 status and checking that the response contains the distinctive title and header of the new page. This Integration Test is called `in case of error it returns the error page created` and was generated using Spring Boot’s testing framework. The test starts the application, sends an HTTP GET request to a path that does not exist, and includes an `Accept: text/html` header to request an HTML response. It then asserts that the returned status is 404 Not Found, that the Content-Type begins with `text/html`, and that the body of the response contains the custom `<title>` and `<h1>` elements defined in `error.html`, ensuring the Thymeleaf template is correctly rendered.
 
 ### 1.2. Implement `/time` endpoint
 It consists on a simple Spring Boot web service written in Kotlin that provides the current date and time.
 A data class (TimeDTO) represents the time information, while a service layer (TimeService) implements a TimeProvider interface to supply the current LocalDateTime.
-A REST controller exposes the endpoint /time, returning the time data as JSON.
+A REST controller exposes the endpoint `/time`, returning the time data as JSON.
 The test implemented is named `time returns current time` and uses TestRestTemplate to verify that the `/time` endpoint returns a successful HTTP response with a JSON body containing the time field.
 
 
@@ -22,6 +22,16 @@ The Spring Boot application was configured to support HTTPS and HTTP/2 using a s
 The SSL setup was tested using a browser, where HTTPS connections were established despite browser warnings due to the self-signed certificate. HTTP/2 protocol was confirmed by inspecting network requests in the browser’s developer tools.
 
 However, attempts to test HTTP/2 using Windows’ default curl failed because the installed version did not support HTTP/2 (see the error in section *4.2.3. Bug Fixes and Guidance*).
+
+The integration tests were initially failing because the application was configured with HTTPS, but the default TestRestTemplate used by Spring Boot’s test framework does not trust self-signed certificates. As a result, requests from the tests to `https://localhost` could not be completed successfully.
+
+To address this, a custom TestConfig class was created. This configuration overrides the default TestRestTemplate bean with one that accepts all SSL certificates. The solution involved:
+
+- Creating a custom SSLContext that trusts all certificates.
+
+- Building an HttpClient with this SSLContext and a NoopHostnameVerifier.
+
+- Registering a TestRestTemplate that uses this custom HTTP client.
 
 
 ## 2. Technical Decisions
@@ -36,13 +46,13 @@ Through the completion of this lab, several technical and methodological lessons
 
 - **Certificate management**: Understand and practice generating, configuring, and debugging SSL certificates.
 
-- **Testing practices**: Strengthened knowledge in writing integration tests with TestRestTemplate, managing request headers and validating responses with different Content-Types.
+- **Testing practices**: Strengthened knowledge in writing integration tests with TestRestTemplate, managing request headers and validating responses with different Content-Types. In addition, it was also learned that when enabling HTTPS in a development or testing environment, the test clients must also be configured to handle SSL certificates properly. This highlighted the importance of understanding how SSL works in client-server communication and the need for custom configurations in order to maintain compatibility in testing scenarios.
 
 - **Debugging cross-platform issues**: Learned how to identify and resolve environment-specific problems, such as PowerShell curl aliasing and OpenSSL configuration errors.
 
 ## 4. AI Disclosure
 ### 4.1. AI Tools Used
-The main AI tool used in this project was ChatGPT (OpenAI) and it was employed for generating HTML and CSS templates for the custom error page, providing debugging suggestions and explanations for common Spring Boot issues, and refining the documentation to improve clarity, conciseness and professionalism.
+The AI tool used in this project was ChatGPT (OpenAI) and it was employed for generating HTML and CSS templates for the custom error page, providing debugging suggestions and explanations for common Spring Boot issues, and refining the documentation to improve clarity, conciseness and professionalism.
 
 ### 4.2. AI-Assisted Work
 This section describes the specific parts of the project where AI assistance was used.
@@ -72,7 +82,8 @@ The solution was to treat contentType as nullable in Kotlin (?.) to avoid except
 - **Error generating the certificate with OpenSSL in WSL**
 The error that appeared in WSL was the following: `Error checking x509 extension section EXT when using <( … )`.
 The cause was that OpenSSL could not read the extension section with process substitution.
-The solution was to create a configuration file `localhost.cnf` with `[req]`, `[dn]`, and `[EXT]` sections, and run OpenSSL using `-config localhost.cnf -extensions EXT`. The file `localhost.cnf` is located in the `src/main/resources` directory. 
+The solution was to create a configuration file `localhost.cnf` with `[req]`, `[dn]`, and `[EXT]` sections, and run OpenSSL using
+`-config localhost.cnf -extensions EXT`.
 
 - **Curl alias issue in PowerShell**
 The problem was that appeared an error when running `curl -H ...`, which was: `CannotConvertArgumentNoMessage`.
@@ -83,13 +94,23 @@ For that reason, the solution was to use `curl.exe` to call the real Windows ver
 Trying to test if the SSL setup worked, this error appeared in the windows terminal: `the installed libcurl version does not support this`. This means that the default Windows curl does not include HTTP/2 support.
 The solution was to do the verification of HTTP/2 using browser developer tools.
 
+- **Integration tests failed**
+The tests initially failed because TestRestTemplate could not connect to HTTPS endpoints with a self-signed certificate.
+The solution was to add a custom TestConfig to trust all certificates and bypass hostname verification, allowing the tests to run successfully. However, there were a series of modifications done in order to solve some problems generated (see this changes in section *4.2.4. Modifications made to AI-generated code*).
+
 #### 4.2.3. Percentage of AI-assisted vs. original work
+Approximately 30% of the work was AI-assisted and 70% was original work.
+AI was primarily used for accelerating repetitive tasks such as generating HTML templates, providing debugging hints, and improving documentation style.
+
+#### 4.2.4. Modifications made to AI-generated code
 AI suggestions have been adapted to match project-specific configurations.
 Moreover, AI-generated documentation was refined to align with report style and structure requirements, carefully reviewing every part to ensure it accurately reflects the original intentions of the developer and says exactly what she decided to convey from the beginning.
 
-#### 4.2.4. Modifications made to AI-generated code
-Approximately 30% of the work was AI-assisted and 70% was original work.
-AI was primarily used for accelerating repetitive tasks such as generating HTML templates, providing debugging hints, and improving documentation style.
+Related to the file `TestConfig.kt`, it was initially done by the AI ChatGPT, however this AI introduced several mistakes that needed to be corrected. This modifications made to the AI-generated code were the following:
+- Replaced the deprecated method setSSLContext with the proper method .setSslContext(sslContext) provided by Apache HttpClient 5.
+- Creation of an SSL socket factory with our all-trusting manager. Configured the client with `NoopHostnameVerifier.INSTANCE` so that hostnames not matching the certificate are accepted during tests.
+- Resolved style violations reported by ktlint using the command: `./gradlew ktlintFormat`.
+
 
 ### 4.3. Original Work
 The majority of the project code. While AI provided guidance and templates, the logic, structure, and debugging decisions reflect the developer’s own understanding and implementation.
