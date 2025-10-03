@@ -98,6 +98,18 @@ The solution was to do the verification of HTTP/2 using browser developer tools.
 The tests initially failed because TestRestTemplate could not connect to HTTPS endpoints with a self-signed certificate.
 The solution was to add a custom TestConfig to trust all certificates and bypass hostname verification, allowing the tests to run successfully. However, there were a series of modifications done in order to solve some problems generated (see this changes in section *4.2.4. Modifications made to AI-generated code*).
 
+- **Warnings of deprecated in Integration Tests**
+During the build, several deprecation warnings appeared related to Apache HttpClient 4.x classes:
+`PlainConnectionSocketFactory is deprecated.`
+`SSLConnectionSocketFactory is deprecated.`
+`The constructor SSLConnectionSocketFactory(SSLContext, HostnameVerifier) is deprecated.`
+`ConnectionSocketFactory interface is deprecated.`
+`The constructor PoolingHttpClientConnectionManager(Registry<ConnectionSocketFactory>) is deprecated.`
+When attempting to migrate the test configuration to HttpClient 5, a compilation error appeared:
+`Unresolved reference 'setSslContext' in HttpClientBuilder`.
+This indicated a conflict between HttpClient 4.x (transitively included by Spring Boot) and HttpClient 5.x, causing the API methods from version 5 not to be recognized.
+Since the issue could not be resolved within the project constraints, the configuration was kept using HttpClient 4.x, where the equivalent method (setSslcontext) is still available and functional.
+
 #### 4.2.3. Percentage of AI-assisted vs. original work
 Approximately 30% of the work was AI-assisted and 70% was original work.
 AI was primarily used for accelerating repetitive tasks such as generating HTML templates, providing debugging hints, and improving documentation style.
