@@ -14,7 +14,7 @@ data class TimeDTO(
 )
 
 /*
- * Creation of a Time Provider Interface, 
+ * Creation of a Time Provider Interface,
  * which allows for different implementations of time
  * retrieval, making the code more flexible and testable.
 */
@@ -36,7 +36,6 @@ class TimeService : TimeProvider {
  * inheriting from it.
 */
 fun LocalDateTime.toDTO(): TimeDTO = TimeDTO(time = this)
-
 
 /*
  * Creation of a REST Controller

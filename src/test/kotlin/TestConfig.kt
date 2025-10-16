@@ -26,7 +26,7 @@ class TestConfig {
     /*
      * Create a TestRestTemplate that ignores SSL certificate errors.
      * This is necessary because the server uses a self-signed certificate.
-    */
+     */
     @Bean
     fun testRestTemplate(): TestRestTemplate {
         // Create a trust manager that does not validate certificate chains
@@ -61,7 +61,7 @@ class TestConfig {
                 sslContext,
                 NoopHostnameVerifier.INSTANCE,
             )
-        
+
         // Create a registry of socket factories, for both HTTP and HTTPS
         val socketFactoryRegistry =
             RegistryBuilder

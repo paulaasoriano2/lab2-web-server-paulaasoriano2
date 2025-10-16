@@ -50,7 +50,7 @@ class IntegrationTest {
 
     /*
      * This test checks that the /time endpoint returns the current time in JSON format.
-    */
+     */
     @Test
     fun `time returns current time`() {
         val response =
