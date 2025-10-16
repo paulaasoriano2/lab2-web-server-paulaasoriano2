@@ -40,7 +40,7 @@
         <button type="submit">Buscar</button>
       </form>
 
-      <p style="margin-top:18px;color:var(--muted);font-size:13px">Si crees que esto es un error, por favor <a th:href="@{/contacto}" style="color:inherit;text-decoration:underline">contacta con soporte</a> indicando la dirección solicitada: <code th:text="${#httpServletRequest.requestURI}">/ruta/solicitada</code>.</p>
+      <p style="margin-top:18px;color:var(--muted);font-size:13px">Si crees que esto es un error, por favor <a th:href="@{/contacto}" style="color:inherit;text-decoration:underline">contacta con soporte</a> indicando la dirección solicitada: <code th:text="${#httpServletRequest != null ? #httpServletRequest.requestURI : 'Unknown URI'}">/ruta/solicitada</code>.</p>
     </section>
 
     <aside class="illustration" aria-hidden="true">
